@@ -10,7 +10,7 @@ struct Rectangle {
 trait Shape {
     fn new ( width: f32, height: f32) -> Self;
 
-    fn Calculate(&mut self);
+    fn calculate(&mut self);
 }
 
 impl Shape for Rectangle {
@@ -18,7 +18,7 @@ impl Shape for Rectangle {
         return Rectangle{width: w, height: h, area: 0.0};
     }
 
-    fn Calculate(&mut self) {
+    fn calculate(&mut self) {
         self.area = self.width * self.height;
     }
 }
@@ -54,6 +54,6 @@ fn main() {
     println!("Area : {}", area);
 
     let mut r = Rectangle::new(3.0, 4.0);
-    r.Calculate();
+    r.calculate();
     println!("Rect Area : {}", r.area); 
 }
