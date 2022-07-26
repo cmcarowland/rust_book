@@ -89,7 +89,7 @@ mod tests {
         let config = Config::new(&args);
 
         match config {
-            Ok(c) => {
+            Ok(_c) => {
                 assert!(true);
             },
             Err(e) => {
@@ -106,7 +106,7 @@ mod tests {
         let config = Config::new(&args);
 
         match config {
-            Ok(c) => {
+            Ok(_c) => {
                 assert!(false);
             },
             Err(e) => {
@@ -122,7 +122,7 @@ mod tests {
         let config = Config::new(&args);
 
         match config {
-            Ok(c) => {
+            Ok(_c) => {
                 assert!(false);
             },
             Err(e) => {
