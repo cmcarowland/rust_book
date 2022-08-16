@@ -8,8 +8,8 @@ struct Movie {
 }
 
 impl Movie {
-    fn new() -> Movie {
-        Movie {title:"Hi".to_string(), year:0, stars:0}
+    fn new(title: String, year: i16, stars: i8) -> Movie {
+        Movie {title, year, stars}
     }
     
     fn equals(&self, other: &Movie) -> bool {
@@ -28,7 +28,7 @@ enum Selection {
 
 fn main() {
     let mut movies: Vec<Movie> =  Vec::new();
-    movies.push(Movie::new());
+    movies.push(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
     println!("The Movie List Program\n");
     loop {
         print_menu();
@@ -69,15 +69,15 @@ fn process_user_key(key: &str) -> Selection {
         }
         'd' => {
             println!("D Pressed");
-            return Selection::D(Movie::new());
+            return Selection::D(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
         }
         'a' => {
             println!("A Pressed");
-            return Selection::A(Movie::new());
+            return Selection::A(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
         }
         'm' => {
             println!("M Pressed");
-            return Selection::M(Movie::new());
+            return Selection::M(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
         }
         'x' => {
             println!("Bye!");
