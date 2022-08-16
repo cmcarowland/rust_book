@@ -1,14 +1,15 @@
 use std::io;
 use std::io::Write;
+use std::fs;
 
 struct Movie {
     title: String,
-    year: i16,
-    stars: i8,
+    year: u16,
+    stars: u16,
 }
 
 impl Movie {
-    fn new(title: String, year: i16, stars: i8) -> Movie {
+    fn new(title: String, year: u16, stars: u16) -> Movie {
         Movie {title, year, stars}
     }
     
@@ -21,14 +22,15 @@ enum Selection {
     V,
     D(Movie),
     A(Movie),
-    M(Movie),
+    M,
     X,
     Unknown,
 }
 
 fn main() {
     let mut movies: Vec<Movie> =  Vec::new();
-    movies.push(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
+    load_movies_from_file(&mut movies);
+
     println!("The Movie List Program\n");
     loop {
         print_menu();
@@ -38,8 +40,25 @@ fn main() {
             Selection::V => { 
                 print_movies(&movies);
             }
-            _ => {println!( "Todo"); }
+            Selection::A(movie) => {
+                add_movie(&mut movies, movie);
+            }
+            Selection::M => {
+                print_movies(&movies);
+                let index = select_movie((movies.len() as i32)+ 1);
+                modify_movie(&mut movies[index as usize]);
+            }
+            
+            _ => { println!(); }
         }
+    }
+}
+
+fn load_movies_from_file(movies: &mut Vec<Movie>) {
+    let movies_text = fs::read_to_string("movies.txt").unwrap();
+    for line in movies_text.lines() {
+        let split_line = line.split('\t').collect::<Vec<&str>>();
+        movies.push(Movie::new(split_line[0].to_string(), 1942, 5));
     }
 }
 
@@ -64,20 +83,16 @@ fn get_user_key() -> String {
 fn process_user_key(key: &str) -> Selection {
     match key.chars().nth(0).unwrap() {
         'v' => {
-            println!("V Pressed");
             return Selection::V;
         }
         'd' => {
-            println!("D Pressed");
             return Selection::D(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
         }
         'a' => {
-            println!("A Pressed");
-            return Selection::A(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
+            return Selection::A(Movie::new(get_string_from_user("Enter Title >> "), get_number_from_user("Enter Year >> "), get_number_from_user("Enter Stars >> ")));
         }
         'm' => {
-            println!("M Pressed");
-            return Selection::M(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
+            return Selection::M;
         }
         'x' => {
             println!("Bye!");
@@ -94,8 +109,46 @@ fn print_movies(movies: &Vec<Movie>) {
     println!("\n{:<4}{:20}{:6}{:5}", "", "TITLE", "YEAR", "STARS");
 
     for (i, movie) in movies.iter().enumerate() {
-        println!("\n{:<4}{:20}{:<6}{:<5}", i + 1, movie.title, movie.year, movie.stars);
+        println!("{:<4}{:20}{:<6}{:<5}", i + 1, movie.title, movie.year, movie.stars);
     }
 
     println!();
+}
+
+fn get_string_from_user(message: &str) -> String {
+    print!("{}", message);
+    io::stdout().flush().unwrap();
+
+    let mut user_input = String::new();
+    io::stdin().read_line(&mut user_input).unwrap();
+
+    user_input.trim().to_string()
+}
+
+fn get_number_from_user(message: &str) -> u16 {
+    print!("{}", message);
+    io::stdout().flush().unwrap();
+
+    let mut user_input = String::new();
+    io::stdin().read_line(&mut user_input).unwrap();
+    match user_input.trim().parse::<u16>() {
+        Ok(num) => return num,
+        Err(_) => {
+            println!("Invalid Number!!\nPlease Try Again...\n\n");
+            return get_number_from_user(message);
+        }
+    }
+}
+
+fn add_movie(movies: &mut Vec<Movie>, movie: Movie) {
+    movies.push(movie);
+}
+
+fn select_movie(length: i32) -> u16 {
+    get_number_from_user(&format!("Select Movie (1-{})>> ", length)[..]) - 1
+}
+
+fn modify_movie(movie: &mut Movie) {
+    let stars = get_number_from_user(&format!("Enter New Stars ({}) >> ", movie.stars)[..]);
+    movie.stars = stars;
 }
