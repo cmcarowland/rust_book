@@ -2,14 +2,45 @@ use std::io;
 use std::io::Write;
 
 struct Movie {
+    title: String,
+    year: i16,
+    stars: i8,
+}
+
+impl Movie {
+    fn new() -> Movie {
+        Movie {title:"Hi".to_string(), year:0, stars:0}
+    }
     
+    fn equals(&self, other: &Movie) -> bool {
+        self.title == other.title && self.year == other.year
+    }
+}
+
+enum Selection {
+    V,
+    D(Movie),
+    A(Movie),
+    M(Movie),
+    X,
+    Unknown,
 }
 
 fn main() {
-    let mut movies: Vec<Movie>;
+    let mut movies: Vec<Movie> =  Vec::new();
+    movies.push(Movie::new());
     println!("The Movie List Program\n");
-    print_menu();
-    process_user_key(get_user_key().to_lowercase().trim());
+    loop {
+        print_menu();
+        let sel: Selection = process_user_key(get_user_key().to_lowercase().trim());
+        match sel {
+            Selection::X => { break; }
+            Selection::V => { 
+                print_movies(&movies);
+            }
+            _ => {println!( "Todo"); }
+        }
+    }
 }
 
 fn print_menu() {
@@ -30,25 +61,41 @@ fn get_user_key() -> String {
     buf
 }
 
-fn process_user_key(key: &str) {
+fn process_user_key(key: &str) -> Selection {
     match key.chars().nth(0).unwrap() {
         'v' => {
             println!("V Pressed");
+            return Selection::V;
         }
         'd' => {
             println!("D Pressed");
+            return Selection::D(Movie::new());
         }
         'a' => {
             println!("A Pressed");
+            return Selection::A(Movie::new());
         }
         'm' => {
             println!("M Pressed");
+            return Selection::M(Movie::new());
         }
         'x' => {
-            println!("X Pressed");
+            println!("Bye!");
+            return Selection::X;
         }
         _ => {
             println!("Invalid Response");
+            return Selection::Unknown;
         }
     }
+}
+
+fn print_movies(movies: &Vec<Movie>) {
+    println!("\n{:<4}{:20}{:6}{:5}", "", "TITLE", "YEAR", "STARS");
+
+    for (i, movie) in movies.iter().enumerate() {
+        println!("\n{:<4}{:20}{:<6}{:<5}", i + 1, movie.title, movie.year, movie.stars);
+    }
+
+    println!();
 }
