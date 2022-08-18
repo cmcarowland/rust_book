@@ -16,11 +16,24 @@ impl Movie {
     fn equals(&self, other: &Movie) -> bool {
         self.title == other.title && self.year == other.year
     }
+
+    fn to_file(&self) -> String {
+        let mut out = String::new();
+
+        out += &self.title;
+        out += "\t";
+        out += &self.year.to_string() ;
+        out += "\t";
+        out += &self.stars.to_string();
+        out += "\n";
+
+        out
+    }
 }
 
 enum Selection {
     V,
-    D(Movie),
+    D,
     A(Movie),
     M,
     X,
@@ -44,13 +57,16 @@ fn main() {
                 add_movie(&mut movies, movie);
             }
             Selection::M => {
-                print_movies(&movies);
-                let index = select_movie((movies.len() as i32)+ 1);
-                modify_movie(&mut movies[index as usize]);
+                modify_movie(&mut movies);
+            }
+            Selection::D => {
+                delete_movie(&mut movies);
             }
             
             _ => { println!(); }
         }
+
+        save_movies(&movies);
     }
 }
 
@@ -86,7 +102,7 @@ fn process_user_key(key: &str) -> Selection {
             return Selection::V;
         }
         'd' => {
-            return Selection::D(Movie::new("Wizard Of Oz".to_string(), 1942, 5));
+            return Selection::D;
         }
         'a' => {
             return Selection::A(Movie::new(get_string_from_user("Enter Title >> "), get_number_from_user("Enter Year >> "), get_number_from_user("Enter Stars >> ")));
@@ -145,10 +161,28 @@ fn add_movie(movies: &mut Vec<Movie>, movie: Movie) {
 }
 
 fn select_movie(length: i32) -> u16 {
-    get_number_from_user(&format!("Select Movie (1-{})>> ", length)[..]) - 1
+    get_number_from_user(&format!("Select Movie (1-{})>> ", length - 1)[..]) - 1
 }
 
-fn modify_movie(movie: &mut Movie) {
-    let stars = get_number_from_user(&format!("Enter New Stars ({}) >> ", movie.stars)[..]);
-    movie.stars = stars;
+fn modify_movie(movies: &mut Vec<Movie>) {
+    print_movies(&movies);
+    let index = usize::from(select_movie((movies.len() as i32)+ 1));
+    let stars = get_number_from_user(&format!("Enter New Stars ({}) >> ", movies[index].stars)[..]);
+    movies[index].stars = stars;
+}
+
+fn delete_movie(movies: &mut Vec<Movie>) {
+    print_movies(&movies);
+    let index = select_movie((movies.len() as i32) + 1);
+    if movies.len() > 0 && usize::from(index) < movies.len() {
+        movies.remove(usize::from(index));
+    }
+}
+
+fn save_movies(movies: &Vec<Movie>) {
+    let mut outfile = fs::File::create("movies.txt").unwrap();
+
+    for movie in movies {
+        outfile.write_all(&movie.to_file().as_bytes());
+    }
 }
