@@ -1,2 +1,5 @@
-Casablanca	1942	5
-Wonder Woman	2017	4
+Happy Gilmore	1942	5
+Caddy Shack	1980	5
+Billy Maddison	1995	5
+The Wedding Singer	1998	4
+Vanity Fair	2004	1
