@@ -105,6 +105,41 @@ fn get_user_input() -> char {
 }
 
 fn move_left(row: &mut Vec<i32>, score: &mut usize) {
+    let mut filtered_row: Vec<i32> = row.iter().filter(|&x| *x != 0).copied().collect();
+    let mut result = Vec::<i32>::new();
+    //println!("{:?}", filtered_row);
+    let mut changed = false;
+    while filtered_row.len() > 0 {
+        let mut value = filtered_row.remove(0);
+        let mut second_value = 0;
+        if filtered_row.len() > 0 {
+            second_value = filtered_row.remove(0);
+        }
+
+        if second_value > 0 && second_value == value {
+            value += second_value;
+            *score += value as usize;
+            filtered_row.insert(0, value);
+            filtered_row = [result.as_slice(), filtered_row.as_slice()].concat();
+            result.clear();
+        } else {
+            if second_value > 0 {
+                filtered_row.insert(0, second_value);
+            }
+
+            result.push(value);
+        }
+      }
+
+    while result.len() < NUM_COLS {
+        result.push(0);
+    }
+
+    //println!("{:?}", result);
+    *row = result;
+}
+
+fn move_left_old(row: &mut Vec<i32>, score: &mut usize) {
     for i in 0..NUM_COLS {
         if row[i] != 0 {
             *score += add_row(row);
