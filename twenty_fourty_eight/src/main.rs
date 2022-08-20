@@ -1,10 +1,18 @@
 use std::io;
 use rand::Rng;
 
+const NUM_ROWS: i32 = 4;
+const NUM_COLS: i32 = 4;
+
+static mut score: i32 = 0;
+
+
 fn main() {
     let mut grid = vec![vec![0; 10]; 4];
-    add_random_to_grid(&mut grid);
-
+    //add_random_to_grid(&mut grid);
+    //add_random_to_grid(&mut grid);
+    grid[0][8] = 2;
+    grid[0][9] = 2;
     loop {
         print_grid(&grid);
         match get_user_input() {
@@ -39,7 +47,7 @@ fn add_random_to_grid(grid: &mut Vec<Vec<i32>>) {
     loop {
         let row: usize = rand::thread_rng().gen_range(0, 4);
         let col: usize = rand::thread_rng().gen_range(0, 10);
-        println!("Row : {} Col : {}", row, col);
+        //println!("Row : {} Col : {}", row, col);
 
         if grid[row][col] == 0 {
             grid[row][col] = 2;
@@ -69,7 +77,7 @@ fn move_left(row: &mut Vec<i32>) {
         }
 
         let next_num = get_index(row, 1);
-        println!("Found Next Number At Index {}", next_num);
+        //println!("Found Next Number At Index {}", next_num);
         if next_num == -1 {
             add_row(row);
             break;
@@ -81,33 +89,33 @@ fn move_left(row: &mut Vec<i32>) {
 }
 
 fn add_row(row: &mut Vec<i32>) -> i32 {
-    let mut score = 0;
+    let mut row_score = 0;
     for i in (1..9).rev() {
-        println!("{}", row[i]);
+        //println!("{}", row[i]);
         if row[i] != 0 && i > 0 {
             if row[i] == row[i - 1] {
-                println!("Adding {} + {} at indexes {} and {}", row[i], row[i - 1],  i, i - 1);
+                //println!("Adding {} + {} at indexes {} and {}", row[i], row[i - 1],  i, i - 1);
                 row[i - 1] *= 2;
-                score += row[i - 1];
+                row_score += row[i - 1];
                 row[i] = 0;
             }
         }
     }
 
-    score
+    row_score
 }
 
 fn move_right(row: &mut Vec<i32>) {
     for i in (0..10).rev() {
         if row[i] != 0 {
-            add_row(row);
+            add_row_right(row);
             continue;
         }
 
         let next_num = get_index_right(row);
-        println!("Found Next Number At Index {}", next_num);
+        //println!("Found Next Number At Index {}", next_num);
         if next_num == -1 {
-            add_row(row);
+            add_row_right(row);
             break;
         }
         
@@ -117,19 +125,19 @@ fn move_right(row: &mut Vec<i32>) {
 }
 
 fn add_row_right(row: &mut Vec<i32>) -> i32 {
-    let mut score = 0;
+    let mut row_score = 0;
     for i in 0..9 {
         println!("{}", row[i]);
-        if row[i] != 0 && i > 0 {
+        if row[i] != 0 && i < 9 {
             if row[i] == row[i + 1] {
                 row[i + 1] *= 2;
-                score += row[i + 1];
+                row_score += row[i + 1];
                 row[i] = 0;
             }
         }
     }
 
-    score
+    row_score
 }
 
 fn swap_items(a: usize, b: usize, row: &mut Vec<i32>) {
@@ -162,7 +170,7 @@ fn get_index(row: &mut Vec<i32>, direction: i32) -> i32 {
 
 fn get_index_right(row: &mut Vec<i32>) -> i32 {
     for i in (0..10).rev() {
-        println!("Move Right {}", i);
+        //println!("Move Right {}", i);
         if row[i as usize] == 0 {
             let mut j = i - 1;
 
