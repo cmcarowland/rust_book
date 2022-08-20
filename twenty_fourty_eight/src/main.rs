@@ -1,5 +1,6 @@
 use std::io;
 use rand::Rng;
+use std::io::Write;
 
 const NUM_ROWS: usize = 4;
 const NUM_COLS: usize = 4;
@@ -9,18 +10,24 @@ static mut score: i32 = 0;
 
 fn main() {
     let mut grid = vec![vec![0; NUM_COLS]; NUM_ROWS];
-    //add_random_to_grid(&mut grid);
-    //add_random_to_grid(&mut grid);
-    grid[0][0] = 2;
-    grid[1][0] = 2;
+    add_random_to_grid(&mut grid);
+    add_random_to_grid(&mut grid);
+    //grid[0][0] = 2;
+    //grid[1][0] = 2;
     loop {
         print_grid(&grid);
         match get_user_input() {
             'w' => {
                 println!("Move Up");
+                for i in 0..4 {
+                    move_up(&mut grid, i);
+                }
             }
             's' => {
                 println!("Move Down");
+                for i in 0..4 {
+                    move_down(&mut grid, i);
+                }
             }
             'a' => {
                 println!("Move Left");
@@ -58,8 +65,13 @@ fn add_random_to_grid(grid: &mut Vec<Vec<i32>>) {
 
 fn print_grid(grid: &Vec<Vec<i32>>) {
     for row in grid {
-        println!("{:?}", row);
+        println!("{}", "---------------------------------");
+        for col in row {
+            print!("|{:^7}", col);
+        }
+        println!("|");
     }
+    println!("{}", "---------------------------------");
 }
 
 fn get_user_input() -> char {
@@ -105,6 +117,42 @@ fn add_row(row: &mut Vec<i32>) -> i32 {
     row_score
 }
 
+fn move_up(grid: &mut Vec<Vec<i32>>, col: usize) {
+    for i in 0..NUM_COLS {
+        if grid[i][col] != 0 {
+            add_row_up(grid, col);
+            continue;
+        }
+
+        let next_num = get_index_up(grid, col);
+        //println!("Found Next Number At Index {}", next_num);
+        if next_num == -1 {
+            add_row_up(grid, col);
+            break;
+        }
+        
+        swap_items_col(i, next_num as usize, grid, col);
+        add_row_up(grid, col);
+    }
+}
+
+fn add_row_up(grid: &mut Vec<Vec<i32>>, col: usize) -> i32 {
+    let mut row_score = 0;
+    for i in (1..NUM_COLS).rev() {
+        //println!("{}", row[i]);
+        if grid[i][col] != 0 && i > 0 {
+            if grid[i][col] == grid[i - 1][col] {
+                //println!("Adding {} + {} at indexes {} and {}", row[i], row[i - 1],  i, i - 1);
+                grid[i - 1][col] *= 2;
+                row_score += grid[i - 1][col];
+                grid[i][col] = 0;
+            }
+        }
+    }
+
+    row_score
+}
+
 fn move_right(row: &mut Vec<i32>) {
     for i in (0..NUM_COLS).rev() {
         if row[i] != 0 {
@@ -140,10 +188,51 @@ fn add_row_right(row: &mut Vec<i32>) -> i32 {
     row_score
 }
 
+fn move_down(grid: &mut Vec<Vec<i32>>, col: usize) {
+    for i in (0..NUM_COLS).rev() {
+        if grid[i][col] != 0 {
+            add_row_down(grid, col);
+            continue;
+        }
+
+        let next_num = get_index_down(grid, col);
+        //println!("Found Next Number At Index {}", next_num);
+        if next_num == -1 {
+            add_row_down(grid, col);
+            break;
+        }
+        
+        swap_items_col(i, next_num as usize, grid, col);
+        add_row_down(grid, col);
+    }
+}
+
+fn add_row_down(grid: &mut Vec<Vec<i32>>, col: usize) -> i32 {
+    let mut row_score = 0;
+    for i in 0..NUM_COLS - 1 {
+        //println!("{}", row[i]);
+        if grid[i][col] != 0 && i < 9 {
+            if grid[i][col] == grid[i + 1][col] {
+                grid[i + 1][col] *= 2;
+                row_score += grid[i + 1][col];
+                grid[i][col] = 0;
+            }
+        }
+    }
+
+    row_score
+}
+
 fn swap_items(a: usize, b: usize, row: &mut Vec<i32>) {
     let temp = row[a];
     row[a] = row[b];
     row[b] = temp;
+}
+
+fn swap_items_col(a: usize, b: usize, grid: &mut Vec<Vec<i32>>, col: usize) {
+    let temp = grid[a][col];
+    grid[a][col] = grid[b][col];
+    grid[b][col] = temp;
 }
 
 fn get_index(row: &mut Vec<i32>, direction: i32) -> i32 {
@@ -168,6 +257,28 @@ fn get_index(row: &mut Vec<i32>, direction: i32) -> i32 {
     -1
 }
 
+fn get_index_up(grid: &mut Vec<Vec<i32>>, col: usize) -> i32 {
+    for i in 0..((NUM_COLS - 1) as i32) {
+        if grid[i as usize][col] == 0 && i < ((NUM_COLS - 1) as i32){
+            let mut j = i + 1;
+
+            loop {
+                if j <= (NUM_COLS as i32) && grid[j as usize][col] > 0 {
+                    return j;
+                }
+
+                j += 1;
+                //println!("j = {} {}", j, row[j as usize]);
+                if j == (NUM_COLS as i32) {
+                    return -1;
+                }
+            }
+        }
+    }
+
+    -1
+}
+
 fn get_index_right(row: &mut Vec<i32>) -> i32 {
     for i in (0..(NUM_COLS) as i32).rev() {
         //println!("Move Right {}", i);
@@ -177,6 +288,30 @@ fn get_index_right(row: &mut Vec<i32>) -> i32 {
 
             loop {
                 if j >= 0 && row[j as usize] > 0 {
+                    return j;
+                }
+
+                j -= 1;
+                //println!("j = {} {}", j, row[j as usize]);
+                if j == -1{
+                    return -1;
+                }
+            }
+        }
+    }
+
+    -1
+}
+
+fn get_index_down(grid: &mut Vec<Vec<i32>>, col: usize) -> i32 {
+    for i in (0..(NUM_COLS) as i32).rev() {
+        //println!("Move Right {}", i);
+        if grid[i as usize][col] == 0 && i > 0{
+            let mut j: i32 = i - 1;
+            //println!("{}", j.testing());
+
+            loop {
+                if j >= 0 && grid[j as usize][col] > 0 {
                     return j;
                 }
 
