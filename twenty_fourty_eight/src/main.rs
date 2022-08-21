@@ -62,15 +62,7 @@ fn main() {
 }
 
 fn add_random_to_grid(grid: &mut Vec<Vec<i32>>) -> bool {
-    let mut has_space = false;
-    for row in &grid[..] {
-        if row.iter().filter(|&x| *x == 0).count() > 0 {
-            has_space = true;
-            break;
-        } 
-    }
-
-    if !has_space {
+    if !is_space_available(grid) {
         return false;
     }
 
@@ -86,6 +78,16 @@ fn add_random_to_grid(grid: &mut Vec<Vec<i32>>) -> bool {
     }
 
     true
+}
+
+fn is_space_available(grid: &mut Vec<Vec<i32>>) -> bool {
+    for row in &grid[..] {
+        if row.iter().filter(|&x| *x == 0).count() > 0 {
+            return true;
+        } 
+    }
+
+    false
 }
 
 fn print_grid(grid: &Vec<Vec<i32>>, score: &usize) {
