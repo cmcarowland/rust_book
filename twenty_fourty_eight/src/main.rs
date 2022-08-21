@@ -7,13 +7,19 @@ const NUM_COLS: usize = 4;
 fn main() {
     let mut grid = vec![vec![0; NUM_COLS]; NUM_ROWS];
     let mut score: usize = 0;
+    let mut did_move = false;
+    let mut number_of_moves = 0;
 
     add_random_to_grid(&mut grid);
     add_random_to_grid(&mut grid);
-    //grid[0][0] = 2;
-    //grid[1][0] = 2;
-    loop {
-        print_grid(&grid, &score);
+    
+    loop {        
+        print_grid(&grid, &score, &number_of_moves);
+        if !is_move_possible(&grid) {
+            break;
+        }
+        
+        did_move = false;
         match get_user_input() {
             'w' => {
                 println!("Move Up");
@@ -21,8 +27,11 @@ fn main() {
                 for i in 0..4 {
                     let col: Vec<i32> = grid.iter().map(|x| x[i]).collect();
                     let new_col = move_lower(&col, &mut score);
-                    for j in 0..NUM_ROWS {
-                        grid[j][i] = new_col[j];
+                    if col != new_col {
+                        did_move = true;
+                        for j in 0..NUM_ROWS {
+                            grid[j][i] = new_col[j];
+                        }
                     }
                 }
             }
@@ -31,21 +40,32 @@ fn main() {
                 for i in 0..4 {
                     let col: Vec<i32> = grid.iter().map(|x| x[i]).collect();
                     let new_col = move_upper(&col, &mut score);
-                    for j in 0..NUM_ROWS {
-                        grid[j][i] = new_col[j];
+                    if col != new_col {
+                        did_move = true;
+                        for j in 0..NUM_ROWS {
+                            grid[j][i] = new_col[j];
+                        }
                     }
                 }
             }
             'a' => {
                 println!("Move Left");
                 for row in &mut grid {
-                    *row = move_lower(row, &mut score).clone();
+                    let new_col = move_lower(row, &mut score).clone();
+                    if *row != new_col {
+                        did_move = true;
+                        *row = new_col;
+                    }
                 }
             }
             'd' => {
                 println!("Move Right");
                 for row in &mut grid {
-                    *row = move_upper(row, &mut score).clone();
+                    let new_col = move_upper(row, &mut score).clone();
+                    if *row != new_col {
+                        did_move = true;
+                        *row = new_col;
+                    }
                 }
             }
             _ => {
@@ -53,8 +73,13 @@ fn main() {
             }
         };
 
-        if !add_random_to_grid(&mut grid){
-            break;
+        if did_move {
+            number_of_moves += 1;
+            if !add_random_to_grid(&mut grid) { 
+                break;
+            }
+        } else { 
+            println!("Invalid move, no space available. Try again");
         }
     }
 
@@ -80,7 +105,7 @@ fn add_random_to_grid(grid: &mut Vec<Vec<i32>>) -> bool {
     true
 }
 
-fn is_space_available(grid: &mut Vec<Vec<i32>>) -> bool {
+fn is_space_available(grid: &Vec<Vec<i32>>) -> bool {
     for row in &grid[..] {
         if row.iter().filter(|&x| *x == 0).count() > 0 {
             return true;
@@ -90,7 +115,31 @@ fn is_space_available(grid: &mut Vec<Vec<i32>>) -> bool {
     false
 }
 
-fn print_grid(grid: &Vec<Vec<i32>>, score: &usize) {
+fn is_move_possible(grid: &Vec<Vec<i32>>) -> bool {
+    if is_space_available(grid) {
+        return true;
+    }
+
+    for row in grid {
+        for i in 0usize..NUM_COLS - 1usize {
+            if row[i] == row[i + 1] {
+                return true;
+            }
+        }
+    }
+
+    for i in 0usize..NUM_COLS {
+        for j in 0usize..NUM_ROWS - 1usize {
+            if grid[j][i] == grid[(j + 1) as usize][i] {
+                return true;
+            }
+        }
+    }
+
+    false
+}
+
+fn print_grid(grid: &Vec<Vec<i32>>, score: &usize, moves: &usize) {
     for row in grid {
         println!("{}", "---------------------------------");
         for col in row {
@@ -106,6 +155,7 @@ fn print_grid(grid: &Vec<Vec<i32>>, score: &usize) {
     println!("{}", "---------------------------------");
     
     println!("\nScore : {}", score);
+    println!("Moves : {}", moves);
 }
 
 fn get_user_input() -> char {
