@@ -29,7 +29,11 @@ fn main() {
             's' => {
                 println!("Move Down");
                 for i in 0..4 {
-                    move_down(&mut grid, i, &mut score);
+                    let col: Vec<i32> = grid.iter().map(|x| x[i]).collect();
+                    let new_col = move_upper(&col, &mut score);
+                    for j in 0..NUM_ROWS {
+                        grid[j][i] = new_col[j];
+                    }
                 }
             }
             'a' => {
@@ -41,7 +45,7 @@ fn main() {
             'd' => {
                 println!("Move Right");
                 for row in &mut grid {
-                    move_right(row, &mut score);
+                    *row = move_upper(row, &mut score).clone();
                 }
             }
             _ => {
@@ -137,6 +141,40 @@ fn move_lower(row: &Vec<i32>, score: &mut usize) -> Vec<i32> {
 
     while result.len() < NUM_COLS {
         result.push(0);
+    }
+
+    //println!("{:?}", result);
+    result
+}
+
+fn move_upper(row: &Vec<i32>, score: &mut usize) -> Vec<i32> {
+    let mut filtered_row: Vec<i32> = row.iter().filter(|&x| *x != 0).copied().collect();
+    let mut result = Vec::<i32>::new();
+    //println!("{:?}", filtered_row);
+    while filtered_row.len() > 0 {
+        let mut value = filtered_row.pop().unwrap();
+        let mut second_value = 0;
+        if filtered_row.len() > 0 {
+            second_value = filtered_row.pop().unwrap();
+        }
+
+        if second_value > 0 && second_value == value {
+            value += second_value;
+            *score += value as usize;
+            filtered_row.push(value);
+            filtered_row = [filtered_row.as_slice(), result.as_slice()].concat();
+            result.clear();
+        } else {
+            if second_value > 0 {
+                filtered_row.push(second_value);
+            }
+
+            result.insert(0, value);
+        }
+      }
+
+    while result.len() < NUM_COLS {
+        result.insert(0, 0);
     }
 
     //println!("{:?}", result);
