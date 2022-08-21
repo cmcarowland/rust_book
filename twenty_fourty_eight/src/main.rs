@@ -17,8 +17,13 @@ fn main() {
         match get_user_input() {
             'w' => {
                 println!("Move Up");
+                
                 for i in 0..4 {
-                    move_up(&mut grid, i, &mut score);
+                    let col: Vec<i32> = grid.iter().map(|x| x[i]).collect();
+                    let new_col = move_lower(&col, &mut score);
+                    for j in 0..NUM_ROWS {
+                        grid[j][i] = new_col[j];
+                    }
                 }
             }
             's' => {
@@ -30,7 +35,7 @@ fn main() {
             'a' => {
                 println!("Move Left");
                 for row in &mut grid {
-                    move_left(row, &mut score);
+                    *row = move_lower(row, &mut score).clone();
                 }
             }
             'd' => {
@@ -104,11 +109,10 @@ fn get_user_input() -> char {
     buf.chars().next().unwrap()
 }
 
-fn move_left(row: &mut Vec<i32>, score: &mut usize) {
+fn move_lower(row: &Vec<i32>, score: &mut usize) -> Vec<i32> {
     let mut filtered_row: Vec<i32> = row.iter().filter(|&x| *x != 0).copied().collect();
     let mut result = Vec::<i32>::new();
     //println!("{:?}", filtered_row);
-    let mut changed = false;
     while filtered_row.len() > 0 {
         let mut value = filtered_row.remove(0);
         let mut second_value = 0;
@@ -136,7 +140,7 @@ fn move_left(row: &mut Vec<i32>, score: &mut usize) {
     }
 
     //println!("{:?}", result);
-    *row = result;
+    result
 }
 
 fn move_left_old(row: &mut Vec<i32>, score: &mut usize) {
