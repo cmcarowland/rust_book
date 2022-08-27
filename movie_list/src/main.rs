@@ -157,7 +157,17 @@ fn get_number_from_user(message: &str) -> u16 {
 }
 
 fn add_movie(movies: &mut Vec<Movie>, movie: Movie) {
-    movies.push(movie);
+    let mut should_add_movie = true;
+
+    for m in movies.iter_mut() {
+        if movie.equals(m) {
+            should_add_movie = false;
+        }
+    }
+
+    if should_add_movie {
+        movies.push(movie);
+    }
 }
 
 fn select_movie(length: i32) -> u16 {
@@ -183,6 +193,6 @@ fn save_movies(movies: &Vec<Movie>) {
     let mut outfile = fs::File::create("movies.txt").unwrap();
 
     for movie in movies {
-        outfile.write_all(&movie.to_file().as_bytes());
+        outfile.write_all(&movie.to_file().as_bytes()).unwrap();
     }
 }

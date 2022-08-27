@@ -7,7 +7,7 @@ const NUM_COLS: usize = 4;
 fn main() {
     let mut grid = vec![vec![0; NUM_COLS]; NUM_ROWS];
     let mut score: usize = 0;
-    let mut did_move = false;
+    let mut did_move;
     let mut number_of_moves = 0;
 
     add_random_to_grid(&mut grid);
@@ -73,7 +73,7 @@ fn main() {
             }
         };
 
-        if did_move {
+        if did_move == true {
             number_of_moves += 1;
             if !add_random_to_grid(&mut grid) { 
                 break;

@@ -7,7 +7,7 @@ use std::io::Write;
 
 fn main() {
     let mut scores : Vec<i32> = Vec::new();
-    let mut grade: String = String::new();
+    let mut grade: String;
 
     println!("Enter Grades (0 or less to exit)");
     io::stdout().flush().unwrap();

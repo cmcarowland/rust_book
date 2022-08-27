@@ -47,27 +47,27 @@ impl Account {
     }
 
     fn to_file(&self) -> String {
-        let mut outStr = String::new();
+        let mut out_str = String::new();
 
-        outStr += &self.first_name;
-        outStr += "\t";
-        outStr += &self.last_name;
-        outStr += "\t";
-        outStr += &self.password;
-        outStr += "\t";
-        outStr += &self.email;
-        outStr += "\n";
+        out_str += &self.first_name;
+        out_str += "\t";
+        out_str += &self.last_name;
+        out_str += "\t";
+        out_str += &self.password;
+        out_str += "\t";
+        out_str += &self.email;
+        out_str += "\n";
 
-        outStr
+        out_str
     }
 }
 
 impl fmt::Display for Account {
     fn fmt (&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut nameString: String = self.first_name.clone();
-        nameString += " ";
-        nameString += &self.last_name[..];
-        write!(f, "{:20} {:20}", nameString, self.email)
+        let mut name_string: String = self.first_name.clone();
+        name_string += " ";
+        name_string += &self.last_name[..];
+        write!(f, "{:20} {:20}", name_string, self.email)
     }
 }
 
@@ -77,7 +77,7 @@ fn main() {
     display_accounts(&accounts);
 
     loop {
-        let account = CreateNewUser();
+        let account = create_new_user();
         if accounts.iter().position(|x| x.email == account.email) != None {
             println!("{} already exists - account not added.\n", account.email);
             if !check_continue() {
@@ -113,10 +113,10 @@ fn check_continue() -> bool {
 }
 
 fn write_accounts_to_file(accounts: &Vec<Account>) {
-    let mut outFile = fs::File::create("Accounts.txt").unwrap();
+    let mut out_file = fs::File::create("Accounts.txt").unwrap();
 
     for account in accounts {
-        outFile.write_all(&account.to_file().as_bytes());
+        out_file.write_all(&account.to_file().as_bytes()).unwrap();
     }
 }
 
@@ -144,7 +144,7 @@ fn get_user_string_input(message: &str, buf: &mut String)  {
     io::stdin().read_line(buf).unwrap();
 }
 
-fn CreateNewUser() -> Account {
+fn create_new_user() -> Account {
     let mut account = Account::new();
     let mut buf = String::new();
 
