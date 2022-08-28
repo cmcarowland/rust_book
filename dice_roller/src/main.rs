@@ -58,9 +58,9 @@ struct Roll {
 impl Roll {
     fn new(num_of_die: i32) -> Roll {
         let mut dice: Vec<Die> = Vec::new();
-        for i in 0..num_of_die {
+        (0..num_of_die).for_each(|_i| {
             dice.push(Die::new());
-        }
+        });
 
         Roll{dice: dice, score: 0}
     }
